@@ -1,0 +1,224 @@
+ <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>New Year Countdown</title>
+        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🚀</text></svg>">
+        <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
+        <style>
+          :root {
+            --primary-color: #ffffff;
+            --secondary-color: #bbbbbb;
+            --bg-gradient-start: #1e1e2f;
+            --bg-gradient-end: #2d2d44;
+            --box-bg: rgba(255, 255, 255, 0.1);
+            --box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+          }
+          
+          * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+          }
+          
+          body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
+            background-size: 400% 400%;
+            animation: gradientShift 300s ease infinite;
+            color: var(--primary-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+          }
+
+          h1 {
+            font-size: clamp(1.5rem, 6vw, 2.5rem);
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            font-weight: 500;
+          }
+
+          .countdown-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+          }
+
+          .countdown {
+            font-family: 'Orbitron', 'Courier New', monospace;
+            font-weight: 500;
+            background: var(--box-bg);
+            border-radius: 12px;
+            box-shadow: var(--box-shadow);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-rendering: optimizeLegibility;
+          }
+
+          .days {
+            font-size: clamp(2rem, 8vw, 3rem);
+            margin-bottom: 0.5rem;
+            letter-spacing: 1px;
+          }
+
+          .time {
+            font-size: clamp(1.5rem, 6vw, 2.5rem);
+            letter-spacing: 2px;
+            font-variant-numeric: tabular-nums;
+          }
+
+          .time span {
+            display: inline-block;
+            min-width: 2.2ch;
+            text-align: center;
+            will-change: contents;
+          }
+
+          .datetime-container {
+            position: fixed;
+            right: 10px;
+            bottom: 10px;
+            text-align: right;
+            max-width: calc(100% - 20px);
+          }
+
+          .datetime {
+            font-size: clamp(0.9rem, 3vw, 1.2rem);
+            color: var(--secondary-color);
+            font-family: 'Courier New', monospace;
+            line-height: 1.4;
+          }
+
+          .timezone {
+            font-size: clamp(0.7rem, 2.5vw, 0.9rem);
+            color: var(--secondary-color);
+            opacity: 0.8;
+          }
+
+          @media (max-width: 768px) {
+            .countdown {
+              padding: 1rem;
+            }
+            
+            .datetime-container {
+              position: static;
+              margin-top: 2rem;
+              text-align: center;
+            }
+            
+            .days {
+              letter-spacing: 0.5px;
+            }
+            
+            .time {
+              letter-spacing: 1px;
+            }
+          }
+
+          @keyframes gradientShift {
+            0% { background-position: 0% 100%; }
+            100% { background-position: 100% 0%; }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="countdown-container">
+          <h1>New Year Countdown</h1>
+          <div class="countdown">
+            <div class="days" id="days">--- days</div>
+            <div class="time" id="time">
+              <span id="hours">--</span> : 
+              <span id="minutes">--</span> : 
+              <span id="seconds">--</span> : 
+              <span id="milliseconds">---</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="datetime-container">
+          <div class="datetime" id="now">Detecting local time...</div>
+          <div class="timezone" id="timezone"></div>
+        </div>
+
+        <script>
+          let lastUpdate = 0;
+          const updateInterval = 50; // ms
+          
+          function updateDisplay(timestamp) {
+            const now = new Date();
+            
+            // Format date and time according to user's locale
+            try {
+              const dateOptions = {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              };
+              
+              const timeOptions = {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+              };
+              
+              const dateStr = now.toLocaleDateString(undefined, dateOptions);
+              const timeStr = now.toLocaleTimeString(undefined, timeOptions);
+              const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+              
+              document.getElementById('now').innerHTML = 
+                '<div>' + dateStr + '</div>' +
+                '<div>' + timeStr + '</div>';
+              document.getElementById('timezone').textContent = timeZone;
+            } catch (e) {
+              console.error('Error formatting time:', e);
+            }
+
+            // Calculate countdown to New Year (January 1st next year)
+            const nextYear = now.getFullYear() + 1;
+            const target = new Date(nextYear, 0, 1, 0, 0, 0, 0);
+            const diff = target - now;
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = String(Math.floor((diff / (1000 * 60 * 60)) % 24)).padStart(2, '0');
+            const minutes = String(Math.floor((diff / (1000 * 60)) % 60)).padStart(2, '0');
+            const seconds = String(Math.floor((diff / 1000) % 60)).padStart(2, '0');
+            const milliseconds = String(diff % 1000).padStart(3, '0');
+
+            // Only update DOM if values changed
+            if(days !== parseInt(document.getElementById('days').textContent)) {
+              document.getElementById('days').textContent = days + ' days';
+            }
+            document.getElementById('hours').textContent = hours;
+            document.getElementById('minutes').textContent = minutes;
+            document.getElementById('seconds').textContent = seconds;
+            document.getElementById('milliseconds').textContent = milliseconds;
+          }
+
+          // Smoother animation with controlled frame rate
+          function animate(timestamp) {
+            if (!lastUpdate || timestamp - lastUpdate >= updateInterval) {
+              lastUpdate = timestamp;
+              updateDisplay(timestamp);
+            }
+            requestAnimationFrame(animate);
+          }
+          
+          // Start animation
+          requestAnimationFrame(animate);
+        </script>
+      </body>
+      </html>
