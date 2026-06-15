@@ -234,12 +234,14 @@ function parseRoute(pathname) {
     const parts = pathname.substring(1).split('/');
     const command = parts[0];
     
-    const directMatch = pathname.match(/^/([d.]+)[:=:-](d+)$/);
+    // Fixed regex: changed [d.] to [\d.] and corrected the pattern
+    const directMatch = pathname.match(/^\/([\d.]+)[:=:-](\d+)$/);
     if (directMatch) {
         return directMatch[1] + ':' + directMatch[2];
     }
     
-    const proxyMatch = pathname.match(/^/api/(.+[:=-]d+)$/);
+    // Fixed regex: removed extra slash, changed [d] to [\d]
+    const proxyMatch = pathname.match(/^\/api\/(.+[:=-]\d+)$/);
     if (proxyMatch) {
         return proxyMatch[1];
     }
