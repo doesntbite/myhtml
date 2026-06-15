@@ -1,4 +1,3 @@
-
 // ============================================
 // NETWORK UTILITY - CLOUDFLARE WORKER
 // ============================================
@@ -19,7 +18,7 @@ const TYPES = {
 const DETECTION_PATTERNS = {
     DELIMITER_P1: [0x0d, 0x0a],
     DELIMITER_P1_CHECK: [0x01, 0x03, 0x7f],
-    UUID_V4_REGEX: /^w{8}w{4}4w{3}[89ab]w{3}w{12}$/,
+    UUID_V4_REGEX: /^\w{8}\w{4}4\w{3}[89ab]\w{3}\w{12}$/,
     BUFFER_MIN_SIZE: 62,
     DELIMITER_OFFSET: 56
 };
@@ -234,13 +233,11 @@ function parseRoute(pathname) {
     const parts = pathname.substring(1).split('/');
     const command = parts[0];
     
-    // Fixed regex: changed [d.] to [\d.] and corrected the pattern
-    const directMatch = pathname.match(/^\/([\d.]+)[:=:-](\d+)$/);
+    const directMatch = pathname.match(/^\/([\d\.]+)[:=:-](\d+)$/);
     if (directMatch) {
         return directMatch[1] + ':' + directMatch[2];
     }
     
-    // Fixed regex: removed extra slash, changed [d] to [\d]
     const proxyMatch = pathname.match(/^\/api\/(.+[:=-]\d+)$/);
     if (proxyMatch) {
         return proxyMatch[1];
